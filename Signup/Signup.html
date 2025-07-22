@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup - MelodyMix</title>
+    <link rel="stylesheet" href="signup.css" />
+</head>
+<body>
+    <header>
+        MelodyMix
+    </header>
+    <main>
+        <section class="signup-box">
+            <h2>Create Your MelodyMix Account</h2>
+            <p>Signup to MelodyMix and enjoy world-class music</p>
+
+            <!-- Signup Form -->
+            <form action="/signup" method="POST">
+                <input type="text" name="username" placeholder="Username" required />
+                <input type="email" name="email" placeholder="Email" required />
+                <input type="password" name="password" placeholder="Password" required />
+                <input type="password" name="confirm_password" placeholder="Confirm Password" required />
+                <button type="submit">Sign Up</button>
+            </form>
+
+            <!-- Divider -->
+            <div class="or-divider"><span>or continue with</span></div>
+
+            <!-- Social Buttons -->
+            <div class="social-buttons">
+                <button class="google" aria-label="Continue with Google">
+                    <img src="/static/images/google-icon.png" alt="Google Icon" />
+                    Continue with Google
+                </button>
+                <button class="spotify" aria-label="Continue with Spotify">
+                    <img src="/static/images/spotify-icon.png" alt="Spotify Icon" />
+                    Continue with Spotify
+                </button>
+            </div>
+
+            <!-- Login Link -->
+            <p class="login-link">Already have an account? <a href="file:///C:/Users/BENJA/Documents/Music/Signup/Login.html">Login here</a></p>
+        </section>
+    </main>
+</body>
+</html>

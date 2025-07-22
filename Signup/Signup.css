@@ -1,0 +1,170 @@
+:root {
+    --primary-color: #1DB954;
+    --primary-hover: #17a74b;
+    --bg-color: #121212;
+    --surface-color: #1a1a1a;
+    --text-color: #fff;
+    --text-muted: #b3b3b3;
+    --border-radius: 10px;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+body {
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    font-size: 32px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--primary-color);
+    box-shadow: var(--shadow);
+    letter-spacing: 1.5px;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 40px 20px;
+}
+
+.signup-box {
+    background: var(--surface-color);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    max-width: 400px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.signup-box h2 {
+    margin-bottom: 10px;
+    font-size: 26px;
+    color: var(--primary-color);
+}
+
+.signup-box p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+form input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: var(--border-radius);
+    background: #282828;
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+form input:focus {
+    outline: none;
+    box-shadow: 0 0 8px var(--primary-color);
+}
+
+button[type="submit"] {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button[type="submit"]:hover {
+    background: var(--primary-hover);
+}
+
+.or-divider {
+    margin: 20px 0;
+    position: relative;
+    color: var(--text-muted);
+}
+
+.or-divider::before,
+.or-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: var(--text-muted);
+}
+
+.or-divider::before {
+    left: 0;
+}
+
+.or-divider::after {
+    right: 0;
+}
+
+/* Social Buttons */
+.social-buttons button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.social-buttons button img {
+    width: 20px;
+    height: 20px;
+}
+
+.social-buttons .google {
+    background-color: #ffffff;
+    color: #000;
+    border: 1px solid #ddd;
+}
+
+.social-buttons .google:hover {
+    background-color: #f5f5f5;
+}
+
+social-buttons .spotify {
+    background-color: #1DB954;
+    color: #fff;
+}
+
+.social-buttons .spotify:hover {
+    background-color: #17a74b;
+}
+
+.login-link {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.login-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}

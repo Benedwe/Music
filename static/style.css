@@ -1,0 +1,122 @@
+
+:root {
+    --primary-color: #1DB954; 
+    --primary-hover: #17a74b;
+    --bg-color: #121212;      
+    --surface-color: #1a1a1a; 
+    --surface-alt: #282828;  
+    --text-color: #ffffff;
+    --text-muted: #b3b3b3;
+    --border-color: #333;
+    --border-radius-sm: 5px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-color-glow: rgba(0, 255, 0, 0.3);
+    --shadow-spotify-glow: rgba(29, 185, 84, 0.5);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+    color: #fff;
+}
+
+
+header {
+    background-color: #1db954;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+}
+
+main {
+    padding: 20px;
+}
+
+section {
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    padding: 10px;
+    background-color: #282828;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+ul li:hover {
+    background-color: #1db954;
+}
+
+audio {
+    width: 100%;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    ul li {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 20px;
+    }
+
+    h2 {
+        font-size: 16px;
+    }
+
+    ul li {
+        font-size: 12px;
+    }
+}

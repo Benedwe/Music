@@ -1,0 +1,9 @@
+Flask
+Flask-SocketIO
+spotipy
+requests
+Werkzeug
+google-api-python-client
+textblob
+flask-cors
+eventlet

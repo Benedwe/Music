@@ -1,0 +1,209 @@
+/* MelodyMixUI.css */
+
+/* CSS Variables */
+:root {
+    --primary-color: #1DB954; /* Spotify Green */
+    --primary-hover: #17a74b;
+    --bg-color: #121212;      /* Very Dark Grey/Black */
+    --surface-color: #1a1a1a; /* Slightly Lighter Grey */
+    --surface-alt: #282828;   /* Even Lighter Grey */
+    --text-color: #ffffff;
+    --text-muted: #b3b3b3;
+    --border-color: #333;
+    --border-radius-sm: 5px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-color-glow: rgba(0, 255, 0, 0.3);
+    --shadow-spotify-glow: rgba(29, 185, 84, 0.5);
+}
+
+/* General Styles */
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    background: var(--bg-color);
+    color: var(--text-color);
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Header */
+header {
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent black overlay */
+    padding: 20px;
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0px 4px 10px var(--shadow-color);
+}
+
+/* Navigation Bar */
+nav {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0px 4px 10px var(--shadow-color);
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+nav ul li a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-sm);
+    transition: background 0.3s, color 0.3s;
+}
+
+nav ul li a:hover {
+    background: var(--primary-hover);
+    color: #000;
+}
+
+/* Main Content */
+main {
+    padding: 30px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.6); /* Semi-transparent overlay for readability */
+    border-radius: var(--border-radius-lg);
+    margin: 20px auto;
+    max-width: 1200px;
+    box-shadow: 0 0 20px var(--shadow-color);
+}
+
+/* Sections */
+section {
+    margin: 20px auto;
+    padding: 25px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 0 20px var(--shadow-color);
+    color: var(--text-color);
+}
+
+h2 {
+    color: var(--primary-color);
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul li {
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 10px var(--shadow-color);
+}
+
+ul li strong {
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+/* Buttons */
+button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-sm);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background: var(--primary-hover);
+    transform: scale(1.05);
+}
+
+/* Inputs */
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid var(--primary-color);
+    border-radius: var(--border-radius-sm);
+    background: var(--surface-color);
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px var(--shadow-color-glow);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header {
+        font-size: 24px;
+        padding: 15px;
+    }
+
+    nav ul li a {
+        font-size: 16px;
+        padding: 8px 15px;
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px 15px;
+    }
+
+    input, select {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    input, select {
+        width: 100%;
+    }
+}
