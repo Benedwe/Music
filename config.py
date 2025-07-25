@@ -40,11 +40,26 @@ class ProductionConfig(Config):
     def init_app(cls, app):
         Config.init_app(app)
         
-        # Bug 3: Logic error - trying to log to a file that might not exist
+        # Fixed: Safe logging configuration with error handling
         import logging
-        file_handler = logging.FileHandler('/var/log/app.log')
-        file_handler.setLevel(logging.WARNING)
-        app.logger.addHandler(file_handler)
+        import os
+        try:
+            # Create logs directory if it doesn't exist
+            log_dir = os.path.join(os.getcwd(), 'logs')
+            os.makedirs(log_dir, exist_ok=True)
+            
+            log_file = os.path.join(log_dir, 'app.log')
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setLevel(logging.WARNING)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            file_handler.setFormatter(formatter)
+            app.logger.addHandler(file_handler)
+        except (OSError, PermissionError) as e:
+            # Fallback to console logging if file logging fails
+            app.logger.warning(f"Could not set up file logging: {e}")
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.WARNING)
+            app.logger.addHandler(console_handler)
 
 config = {
     'development': DevelopmentConfig,

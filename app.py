@@ -5,7 +5,6 @@ Contains several intentional bugs for demonstration purposes.
 """
 
 import sqlite3
-import hashlib
 import os
 from flask import Flask, request, jsonify, g
 import time
@@ -40,7 +39,8 @@ def close_db_connection(exception):
 
 def init_db():
     """Initialize the database"""
-    with get_db() as conn:
+    conn = sqlite3.connect(DATABASE)
+    try:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
@@ -51,6 +51,8 @@ def init_db():
             )
         ''')
         conn.commit()
+    finally:
+        conn.close()
 
 @app.route('/register', methods=['POST'])
 def register():
