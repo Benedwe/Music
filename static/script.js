@@ -81,20 +81,19 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 searchResults.innerHTML = "";
-                data.spotify_songs.forEach(song => {
+                if (data.spotify_songs && data.spotify_songs.length > 0) {
+                    data.spotify_songs.forEach(song => {
+                        const div = document.createElement("div");
+                        div.textContent = `${song.title} - ${song.artist}`;
+                        div.setAttribute("data-src", song.url);
+                        div.onclick = playSong;
+                        searchResults.appendChild(div);
+                    });
+                } else {
                     const div = document.createElement("div");
-                    div.textContent = `${song.title} - ${song.artist}`;
-                    div.setAttribute("data-src", song.url);
-                    div.onclick = playSong;
+                    div.textContent = "No songs found";
                     searchResults.appendChild(div);
-                });
-                data.youtube_songs.forEach(song => {
-                    const div = document.createElement("div");
-                    div.textContent = song.title;
-                    div.setAttribute("data-src", song.url);
-                    div.onclick = playSong;
-                    searchResults.appendChild(div);
-                });
+                }
             });
     }
     function addToPlaylist(trackId) {
@@ -115,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error('Error adding track to playlist:', error));
     }
     function downloadPlaylist(playlistName) {
-        fetch(`/download_playlist/${encodeURIComponent(playlistName)}?user=example_user`)
+        fetch(`/download_playlist/${encodeURIComponent(playlistName)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
@@ -179,13 +178,19 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 songList.innerHTML = '';
-                data.songs.forEach(song => {
+                if (data.songs && data.songs.length > 0) {
+                    data.songs.forEach(song => {
+                        const li = document.createElement('li');
+                        li.textContent = `${song.title} - ${song.artist}`;
+                        li.setAttribute('data-src', song.url);
+                        li.addEventListener('click', playSong);
+                        songList.appendChild(li);
+                    });
+                } else {
                     const li = document.createElement('li');
-                    li.textContent = `${song.title} - ${song.artist}`;
-                    li.setAttribute('data-src', song.url);
-                    li.addEventListener('click', playSong);
+                    li.textContent = 'No local songs available. Search for songs using Spotify.';
                     songList.appendChild(li);
-                });
+                }
             })
             .catch(error => console.error('Error loading songs:', error));
     }
@@ -199,7 +204,6 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                user: "example_user", 
                 playlist_name: playlistName,
                 share_type: shareType
             })

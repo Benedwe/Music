@@ -6,7 +6,6 @@ from flask_socketio import SocketIO, emit
 from uuid import uuid4
 import requests
 from werkzeug.security import generate_password_hash, check_password_hash
-import googleapiclient.discovery
 from textblob import TextBlob
 import re
 from spotipy.exceptions import SpotifyException  
@@ -26,17 +25,18 @@ SPOTIPY_CLIENT_ID = os.environ.get('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.environ.get('SPOTIPY_CLIENT_SECRET')
 SPOTIPY_REDIRECT_URI = os.environ.get('SPOTIPY_REDIRECT_URI', 'http://127.0.0.1:5000/callback')
 
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+# Create Spotify OAuth object
+spotify_oauth = SpotifyOAuth(
     client_id=SPOTIPY_CLIENT_ID,
     client_secret=SPOTIPY_CLIENT_SECRET,
     redirect_uri=SPOTIPY_REDIRECT_URI,
-    scope="user-library-read user-read-playback-state user-modify-playback-state"
-))
+    scope="user-library-read user-read-playback-state user-modify-playback-state user-read-private user-read-email"
+)
+
+sp = spotipy.Spotify(auth_manager=spotify_oauth)
 
 LASTFM_API_KEY = os.environ.get('LASTFM_API_KEY')
 LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/"
-
-YOUTUBE_API_KEY = "YOUR_YOUTUBE_API_KEY"
 
 def fetch_lastfm_data(method, params):
     params["api_key"] = LASTFM_API_KEY
@@ -53,60 +53,38 @@ def fetch_lastfm_data(method, params):
     else:
         return {"error": f"Failed to fetch data from Last.fm: {response.status_code}"}
 
-def search_youtube(query):
-    youtube = googleapiclient.discovery.build("youtube", "v3", developerKey='AIzaSyBtsXjdbjQAsSZRNv_Gljs7pcgx2B7FOfs')
-    request = youtube.search().list(
-        part="snippet",
-        q=query,
-        type="video",
-        maxResults=10
-    )
-    response = request.execute()
-    results = []
-    for item in response["items"]:
-        results.append({
-            "title": item["snippet"]["title"],
-            "url": f"https://www.youtube.com/watch?v={item['id']['videoId']}",
-            "thumbnail": item["snippet"]["thumbnails"]["default"]["url"]
-        })
-    return results
+# YouTube functionality removed as per requirements
 
 def correct_spelling(query):
     blob = TextBlob(query)
     return str(blob.correct())
 
-users = {}
+# Spotify OAuth routes
+@app.route('/spotify-login')
+def spotify_login():
+    auth_url = spotify_oauth.get_authorize_url()
+    return redirect(auth_url)
 
+@app.route('/callback')
+def callback():
+    code = request.args.get('code')
+    if code:
+        token_info = spotify_oauth.get_access_token(code)
+        session['spotify_token_info'] = token_info
+        return redirect(url_for('dashboard'))
+    else:
+        return "Spotify authentication failed", 400
 
-recommended_music = [
-    {"title": "HIGHEST IN THE ROOM", "artist": "Travis Scott"},
-    {"title": "Like That", "artist": "Tatiana Manois"},
-    {"title": "Jeje", "artist": "Diamond Platnumz"},
-    {"title": "Mi Gente", "artist": "J Balvin"}
-]
+# Using Spotify for user authentication
+recommended_music = []
 
 playlists = {}
 user_preferences = {}
 public_playlists = []
 comments = {}
 
-available_songs = [
-    {"title": "Jealous", "artist": "DJ Khaled Ft Chris Brown, Big Sean, Lil Wayne", "url": "/static/audio/DJ_Khaled_Ft_Chris_Brown_Big_Sean_Lil_Wayne_-_Jealous_Offblogmedia.com (1) - Copy - Copy.mp3"},
-    {"title": "Bailadila", "artist": "O2SRK Remix", "url": "/static/audio/04. Bailadila - O2SRK Remix.mp3"},
-    {"title": "Desi Girl", "artist": "DJ VASIM", "url": "/static/audio/8. DESI GIRL (REMIX) - DJ VASIM.mp3"},
-    {"title": "It's Time to Disco", "artist": "DJ VASIM", "url": "/static/audio/10. ITS TIME TO DISCO (REMIX) - DJ VASIM.mp3"},
-    {"title": "Glock in My Lap", "artist": "21 Savage & Metro Boomin", "url": "/static/audio/21_Savage_Metro_Boomin_-_Glock_in_My_Lap_Offblogmedia.com.mp3"},
-    {"title": "Runnin", "artist": "21 Savage & Metro Boomin", "url": "/static/audio/21_Savage_Metro_Boomin_-_Runnin_Offblogmedia.com.mp3"},
-    {"title": "Baby By Me", "artist": "50 Cent Ft Ne-Yo", "url": "/static/audio/50_Cent_Ft_Ne-Yo_-_Baby_By_Me_Offblogmedia.com - Copy - Copy.mp3"},
-    {"title": "Candy Shop", "artist": "50 Cent Ft Olivia", "url": "/static/audio/50_Cent_Ft_Olivia_-_Candy_Shop_Offblogmedia.com.mp3"},
-    {"title": "Me Too", "artist": "Abigail Chams & Harmonize", "url": "/static/audio/Abigail_Chams_Harmonize_-_Me_Too_Offblogmedia.com.mp3"},
-    {"title": "Body 2 Body", "artist": "Ace Hood Ft Chris Brown", "url": "/static/audio/Ace_Hood_Ft_Chris_Brown_-_Body_2_Body_Offblogmedia.com - Copy - Copy.mp3"},
-    {"title": "Drunk in Love", "artist": "Beyoncé Ft Jay-Z", "url": "/static/audio/Beyonc_Ft_Jay-Z_-_Drunk_in_Love_Offblogmedia.com.mp3"},
-    {"title": "Upgrade U", "artist": "Beyoncé Ft Jay-Z", "url": "/static/audio/Beyonc_Ft_JAY-Z_-_Upgrade_U_Offblogmedia.com.mp3"},
-    {"title": "Baby Boy", "artist": "Beyoncé Ft Sean Paul", "url": "/static/audio/Beyonc_Ft_Sean_Paul_-_Baby_Boy_Offblogmedia.com.mp3"},
-    {"title": "Can't Leave Em Alone", "artist": "Ciara Ft 50 Cent", "url": "/static/audio/Ciara_Ft_50_Cent_-_Cant_Leave_Em_Alone_Offblogmedia.com.mp3"},
-    {"title": "Nimekubali", "artist": "Diamond Platnumz", "url": "/static/audio/Diamond-Platnumz-Nimekubali-(Vistanaij.com).mp3"}
-]
+
+available_songs = []
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -117,64 +95,32 @@ def home():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
-
-        #
-        if password != confirm_password:
-            return "Passwords do not match!", 400
-
-        
-        if username in users:
-            return "Username already exists!", 400
-
-        
-        users[username] = {
-            'email': email,
-            'password': generate_password_hash(password)
-        }
-
-    
-        return redirect(url_for('dashboard'))
-
-    return render_template('Signup.html')
+    # Redirect to Spotify OAuth for authentication
+    return redirect(url_for('spotify_login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        
-        user = users.get(username)
-        if not user or not check_password_hash(user['password'], password):
-            return "Invalid username or password!", 400
-
-        
-        session['username'] = username
-        return redirect(url_for('dashboard'))
-
-    return render_template('Login.html')
+    # Redirect to Spotify OAuth for authentication
+    return redirect(url_for('spotify_login'))
 
 @app.route('/dashboard')
 def dashboard():
-    
-    if 'username' in session:
-        return f"Welcome to MelodyMix, {session['username']}! Here is your app content."
-
-    
-    if len(users) > 0:
-        return "Welcome to MelodyMix! You can access the app content as a guest since you have signed up."
-
+    # Check if user is authenticated with Spotify
+    if 'spotify_token_info' in session:
+        try:
+            # Get user info from Spotify
+            sp = spotipy.Spotify(auth=session['spotify_token_info']['access_token'])
+            user_info = sp.current_user()
+            return f"Welcome to MelodyMix, {user_info['display_name']}! Here is your app content."
+        except:
+            # Token might be expired, redirect to login
+            return redirect(url_for('login'))
     
     return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.pop('spotify_token_info', None)
     return redirect(url_for('login'))
 
 @app.route('/recommend', methods=['GET'])
@@ -183,27 +129,43 @@ def recommend_music():
 
 @app.route('/create_playlist', methods=['POST'])
 def create_playlist():
+    # Check if user is authenticated with Spotify
+    if 'spotify_token_info' not in session:
+        return jsonify({"error": "User not authenticated"}), 401
+    
+    # Get Spotify user ID
+    sp = spotipy.Spotify(auth=session['spotify_token_info']['access_token'])
+    user_info = sp.current_user()
+    user_id = user_info['id']
+    
     data = request.json
-    user = data.get("user")
     playlist_name = data.get("playlist_name")
 
-    if not user or not playlist_name:
+    if not playlist_name:
         return jsonify({"error": "Invalid data"}), 400
 
-    playlists.setdefault(user, []).append({"name": playlist_name, "songs": []})
+    playlists.setdefault(user_id, []).append({"name": playlist_name, "songs": []})
     return jsonify({"message": "Playlist created successfully!"})
 
 @app.route('/add_to_playlist', methods=['POST'])
 def add_to_playlist():
+    # Check if user is authenticated with Spotify
+    if 'spotify_token_info' not in session:
+        return jsonify({"error": "User not authenticated"}), 401
+    
+    # Get Spotify user ID
+    sp = spotipy.Spotify(auth=session['spotify_token_info']['access_token'])
+    user_info = sp.current_user()
+    user_id = user_info['id']
+    
     data = request.json
-    user = data.get("user")
     playlist_name = data.get("playlist_name")
     song = data.get("song")
 
-    if not user or not playlist_name or not song:
+    if not playlist_name or not song:
         return jsonify({"error": "Invalid data"}), 400
 
-    user_playlists = playlists.setdefault(user, [])
+    user_playlists = playlists.setdefault(user_id, [])
     for playlist in user_playlists:
         if playlist["name"] == playlist_name:
             playlist["songs"].append(song)
@@ -219,17 +181,26 @@ def generate_smart_playlist():
 
     
     generated_playlist = [
-        {"title": "Uplifting Song 1", "artist": "Artist A", "url": "/static/audio/song1.mp3"},
-        {"title": "Relaxing Song 2", "artist": "Artist B", "url": "/static/audio/song2.mp3"},
-        {"title": "Energetic Song 3", "artist": "Artist C", "url": "/static/audio/song3.mp3"}
+        {"title": "Uplifting Song 1", "artist": "Artist A", "url": "https://open.spotify.com/track/example1"},
+        {"title": "Relaxing Song 2", "artist": "Artist B", "url": "https://open.spotify.com/track/example2"},
+        {"title": "Energetic Song 3", "artist": "Artist C", "url": "https://open.spotify.com/track/example3"}
     ]
 
     return jsonify({"playlist": generated_playlist})
 
 @app.route('/collaborate_playlist', methods=['POST'])
+def collaborate_playlist():
+    data = request.json
+    playlist_name = data.get("playlist_name")
+    contributor = data.get("contributor")
+
+    if not playlist_name or not contributor:
+        return jsonify({"error": "Invalid data"}), 400
+
+    return jsonify({"message": f"Contributor '{contributor}' added to playlist '{playlist_name}'!"})
 
 
- 
+
 @app.route('/shared_listening', methods=['GET'])
 def shared_listening():
     shared_playlist = random.sample(recommended_music, min(len(recommended_music), 5))
@@ -260,15 +231,23 @@ def playlist_challenges():
 
 @app.route('/share_playlist', methods=['POST'])
 def share_playlist():
+    # Check if user is authenticated with Spotify
+    if 'spotify_token_info' not in session:
+        return jsonify({"error": "User not authenticated"}), 401
+    
+    # Get Spotify user ID
+    sp = spotipy.Spotify(auth=session['spotify_token_info']['access_token'])
+    user_info = sp.current_user()
+    user_id = user_info['id']
+    
     data = request.json
-    user = data.get("user")
     playlist_name = data.get("playlist_name")
     share_type = data.get("share_type")
 
-    if not user or not playlist_name or not share_type:
+    if not playlist_name or not share_type:
         return jsonify({"error": "Invalid data"}), 400
 
-    user_playlists = playlists.get(user, [])
+    user_playlists = playlists.get(user_id, [])
     for playlist in user_playlists:
         if playlist["name"] == playlist_name:
             if share_type == "public":
@@ -314,10 +293,10 @@ def voice_playlist():
 
    
     generated_playlist = [
-        {"title": "Happy Song 1", "artist": "Artist A", "url": "/static/audio/song1.mp3"},
-        {"title": "Happy Song 2", "artist": "Artist B", "url": "/static/audio/song2.mp3"}
+        {"title": "Happy Song 1", "artist": "Artist A", "url": "https://open.spotify.com/track/example1"},
+        {"title": "Happy Song 2", "artist": "Artist B", "url": "https://open.spotify.com/track/example2"}
     ] if mood == "happy" else [
-        {"title": "Relaxing Song 1", "artist": "Artist C", "url": "/static/audio/song3.mp3"}
+        {"title": "Relaxing Song 1", "artist": "Artist C", "url": "https://open.spotify.com/track/example3"}
     ]
 
     return jsonify({"playlist": generated_playlist})
@@ -361,18 +340,10 @@ def search_songs():
         for item in spotify_results['tracks']['items']
     ]
 
-    # Search on YouTube
-    youtube_results = search_youtube(query)
-    youtube_songs = [
-        {
-            "title": item['title'],
-            "url": item['url'],
-            "thumbnail": item['thumbnail']
-        }
-        for item in youtube_results
-    ]
+    # YouTube functionality removed as per requirements
+    youtube_songs = []
 
-    return jsonify({"spotify_songs": spotify_songs, "youtube_songs": youtube_songs})
+    return jsonify({"spotify_songs": spotify_songs})
 
 @app.route('/playlist_analytics', methods=['GET'])
 def playlist_analytics():
@@ -395,11 +366,19 @@ def playlist_analytics():
 
 @app.route('/download_playlist/<playlist_name>', methods=['GET'])
 def download_playlist(playlist_name):
-    user = request.args.get('user')
-    if not user or user not in playlists:
+    # Check if user is authenticated with Spotify
+    if 'spotify_token_info' not in session:
+        return jsonify({"error": "User not authenticated"}), 401
+    
+    # Get Spotify user ID
+    sp = spotipy.Spotify(auth=session['spotify_token_info']['access_token'])
+    user_info = sp.current_user()
+    user_id = user_info['id']
+    
+    if not user_id or user_id not in playlists:
         return jsonify({"error": "User not found"}), 404
 
-    user_playlists = playlists[user]
+    user_playlists = playlists[user_id]
     for playlist in user_playlists:
         if playlist["name"] == playlist_name:
            
@@ -437,7 +416,7 @@ def track_metadata():
     artist = request.args.get('artist')
 
     if not track or not artist:
-        return jsonify({"error": "Track and artist are required"}), 
+        return jsonify({"error": "Track and artist are required"}), 400
 
    
     data = fetch_lastfm_data("track.getInfo", {"track": track, "artist": artist})
@@ -447,32 +426,39 @@ def track_metadata():
 def search_web():
     query = request.args.get('query')
     if not query:
-        return jsonify({"error": "Query parameter is required"}), 
+        return jsonify({"error": "Query parameter is required"}), 400
 
-    youtube_results = search_youtube(query)
-    return jsonify({"youtube_results": youtube_results})
+    return jsonify({"youtube_results": []})
 
 @app.route('/search_youtube', methods=['GET'])
 def search_youtube_route():
     query = request.args.get('query')
     if not query:
-        return jsonify({"error": "Query parameter is required"}),
+        return jsonify({"error": "Query parameter is required"}), 400
 
-    youtube_results = search_youtube(query)  
-    return jsonify({"youtube_results": youtube_results})
+    # YouTube functionality removed as per requirements
+    return jsonify({"youtube_results": []})
 
 @app.route('/get_playlists', methods=['GET'])
 def get_playlists():
    
-    return jsonify({"playlists": []}), 
+    return jsonify({"playlists": []}), 200
 
 @app.route('/embed_playlist/<playlist_name>', methods=['GET'])
 def embed_playlist(playlist_name):
-    user = request.args.get('user')
-    if not user or user not in playlists:
-        return jsonify({"error": "User not found"}), 
+    # Check if user is authenticated with Spotify
+    if 'spotify_token_info' not in session:
+        return jsonify({"error": "User not authenticated"}), 401
+    
+    # Get Spotify user ID
+    sp = spotipy.Spotify(auth=session['spotify_token_info']['access_token'])
+    user_info = sp.current_user()
+    user_id = user_info['id']
+    
+    if not user_id or user_id not in playlists:
+        return jsonify({"error": "User not found"}), 404
 
-    user_playlists = playlists[user]
+    user_playlists = playlists[user_id]
     for playlist in user_playlists:
         if playlist["name"] == playlist_name:
             embed_code = f"""
@@ -555,47 +541,31 @@ def upload_audio():
 
 @app.route('/available_songs', methods=['GET'])
 def get_available_songs():
-    available_songs = [
-        {"title": "Millionaire", "artist": "O2SRK Mashup", "url": "/static/audio/03. Millionaire - O2SRK Mashup.mp3"},
-        {"title": "Glock in My Lap", "artist": "21 Savage & Metro Boomin", "url": "/static/audio/21_Savage_Metro_Boomin_-_Glock_in_My_Lap_Offblogmedia.com.mp3"},
-        {"title": "LOVE", "artist": "Kendrick Lamar Ft Zacari", "url": "/static/audio/Kendrick_Lamar_Ft_Zacari_-_LOVE_Offblogmedia.com.mp3"},
-        {"title": "Main Nikla Gaddi Leke (Remix)", "artist": "DJ Volcanik", "url": "/static/audio/Main Nikla Gaddi Leke (Remix) - DJ Volcanik.mp3"},
-        {"title": "Me Too", "artist": "Abigail Chams & Harmonize", "url": "/static/audio/Abigail_Chams_Harmonize_-_Me_Too_Offblogmedia.com.mp3"},
-        {"title": "Drunk in Love", "artist": "Beyoncé Ft Jay-Z", "url": "/static/audio/Beyonc_Ft_Jay-Z_-_Drunk_in_Love_Offblogmedia.com.mp3"},
-        {"title": "Knife Talk", "artist": "Drake Ft 21 Savage & Project Pat", "url": "/static/audio/Drake_Ft_21_Savage_Project_Pat_-_Knife_Talk_Offblogmedia.com.mp3"},
-        {"title": "Not Like Us", "artist": "Kendrick Lamar", "url": "/static/audio/Kendrick_Lamar_-_Not_Like_Us_Offblogmedia.com.mp3"},
-        {"title": "Bailadila", "artist": "O2SRK Remix", "url": "/static/audio/04. Bailadila - O2SRK Remix.mp3"},
-        {"title": "Desi Girl", "artist": "DJ VASIM", "url": "/static/audio/8. DESI GIRL (REMIX) - DJ VASIM.mp3"},
-        {"title": "Bollywood Remix", "artist": "DJ VASIM", "url": "/static/audio/9. DJ VASIM - BOLLYWOOD REMIX.mp3"},
-        {"title": "Nimekubali", "artist": "Diamond Platnumz", "url": "/static/audio/Diamond-Platnumz-Nimekubali-(Vistanaij.com).mp3"}
-    ]
+        # Return empty list as we're using Spotify for music content
+    available_songs = []
     return jsonify({"songs": available_songs})
 
 @app.route('/validate_audio_files', methods=['GET'])
 def validate_audio_files():
-    audio_files = os.listdir(app.config['UPLOAD_FOLDER'])
-    missing_files = []
-
-    
-    expected_files = ['song1.mp3', 'song2.mp4', 'song3.mp3']
-
-    for file in expected_files:
-        if file not in audio_files:
-            missing_files.append(file)
-
-    if missing_files:
-        return jsonify({"error": "Missing files", "missing_files": missing_files}), 404
-
-    return jsonify({"message": "All audio files are properly inserted!"}), 200
+    # No longer using local audio files, only Spotify integration
+    return jsonify({"message": "Using Spotify for music content"}), 200
 
 @app.route('/get_playlist_songs', methods=['GET'])
 def get_playlist_songs():
-    user = request.args.get('user')
+    # Check if user is authenticated with Spotify
+    if 'spotify_token_info' not in session:
+        return jsonify({"error": "User not authenticated"}), 401
+    
+    # Get Spotify user ID
+    sp = spotipy.Spotify(auth=session['spotify_token_info']['access_token'])
+    user_info = sp.current_user()
+    user_id = user_info['id']
+    
     playlist_name = request.args.get('playlist_name')
-    if not user or user not in playlists:
+    if not user_id or user_id not in playlists:
         return jsonify({"error": "User not found"}), 404
 
-    user_playlists = playlists[user]
+    user_playlists = playlists[user_id]
     for playlist in user_playlists:
         if playlist["name"] == playlist_name:
             return jsonify({"songs": playlist["songs"]})

@@ -29,9 +29,8 @@
         <section id="available-songs">
             <h2>Available Songs</h2>
             <ul id="song-list">
-                <li draggable="true" data-src="/static/audio/03. Millionaire - O2SRK Mashup.mp3">Millionaire</li>
-                <li draggable="true" data-src="/static/audio/21_Savage_Metro_Boomin_-_Glock_in_My_Lap_Offblogmedia.com.mp3">21 Savage - Glock in My Lap</li>
-                <li draggable="true" data-src="/static/audio/Kendrick_Lamar_Ft_Zacari_-_LOVE_Offblogmedia.com.mp3">Kendrick Lamar - LOVE</li>
+                <!-- Using Spotify for music content -->
+                <li>No local songs available. Search for songs using Spotify.</li>
             </ul>
         </section>
 
@@ -44,9 +43,8 @@
         <section id="playlists">
             <h2>Playlists</h2>
             <ul id="playlist-list">
-                <li data-src="/static/audio/03. Millionaire - O2SRK Mashup.mp3">Millionaire</li>
-                <li data-src="/static/audio/21_Savage_Metro_Boomin_-_Glock_in_My_Lap_Offblogmedia.com.mp3">21 Savage - Glock in My Lap</li>
-                <li data-src="/static/audio/Kendrick_Lamar_Ft_Zacari_-_LOVE_Offblogmedia.com.mp3">Kendrick Lamar - LOVE</li>
+                <!-- Using Spotify for music content -->
+                <li>No local songs available. Search for songs using Spotify.</li>
             </ul>
         </section>
 
@@ -168,15 +166,15 @@
                 .then(data => {
                     const resultsList = document.getElementById('search-results');
                     resultsList.innerHTML = '';
-                    if (data.songs) {
-                        data.songs.forEach(song => {
+                    if (data.spotify_songs) {
+                        data.spotify_songs.forEach(song => {
                             const li = document.createElement('li');
                             li.innerHTML = `<strong>${song.title}</strong> by ${song.artist} 
-                                            <a href="${song.url}" target="_blank">Listen</a>`;
+                                            <a href="${song.url}" target="_blank">Listen on Spotify</a>`;
                             resultsList.appendChild(li);
                         });
                     } else {
-                        resultsList.innerHTML = `<li>${data.error}</li>`;
+                        resultsList.innerHTML = `<li>No songs found</li>`;
                     }
                 })
                 .catch(error => console.error('Error:', error));

@@ -1,10 +1,10 @@
 # MelodyMix
 
-MelodyMix is a collaborative music playlist web app that lets users search for songs from Spotify and YouTube, create and share playlists, and invite friends to collaborate in real time.
+MelodyMix is a collaborative music playlist web app that lets users search for songs from Spotify, create and share playlists, and invite friends to collaborate in real time.
 
 ## Features
 
-- **Spotify & YouTube Integration:** Search and add songs from Spotify and YouTube.
+- **Spotify Integration:** Search and add songs from Spotify.
 - **User Playlists:** Create, edit, and manage your own playlists.
 - **Collaboration:** Invite friends to contribute to shared playlists.
 - **Real-time Updates:** See playlist changes instantly with Socket.IO.
@@ -16,7 +16,7 @@ MelodyMix is a collaborative music playlist web app that lets users search for s
 
 - Python 3.8+
 - [Spotify Developer Account](https://developer.spotify.com/)
-- [YouTube Data API Key](https://console.developers.google.com/)
+
 
 ### Installation
 
@@ -37,7 +37,6 @@ MelodyMix is a collaborative music playlist web app that lets users search for s
     SPOTIPY_CLIENT_ID=your_spotify_client_id
     SPOTIPY_CLIENT_SECRET=your_spotify_client_secret
     SPOTIPY_REDIRECT_URI=http://127.0.0.1:5000/callback
-    YOUTUBE_API_KEY=your_youtube_api_key
     LASTFM_API_KEY=your_lastfm_api_key
     ```
 

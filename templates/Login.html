@@ -15,15 +15,16 @@
             <h2>Welcome Back to MelodyMix</h2>
             <p>Login to access your playlists and favorite music</p>
 
-            <!-- Login Form -->
-            <form action="/login" method="POST">
-                <input type="text" name="username" placeholder="Username" required />
-                <input type="password" name="password" placeholder="Password" required />
-                <button type="submit">Login</button>
-            </form>
+            <!-- Spotify Login Button -->
+            <a href="/spotify-login" class="spotify-login">
+                <button type="button" class="spotify">
+                    <img src="/static/images/spotify-icon.png" alt="Spotify Icon" />
+                    Continue with Spotify
+                </button>
+            </a>
 
             <!-- Signup Link -->
-            <p class="signup-link">Don't have an account? <a href="file:///C:/Users/BENJA/Documents/Music/Signup/Signup.html">Sign up here</a></p>
+            <p class="signup-link">Don't have an account? <a href="/signup">Sign up here</a></p>
         </section>
     </main>
 </body>
